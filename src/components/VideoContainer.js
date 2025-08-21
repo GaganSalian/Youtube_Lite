@@ -39,22 +39,28 @@ const VideoContainer = () => {
   const [videos, setVideos] = useState([]);
 
   useEffect(() => {
-    getVideos();
+    getVideos();  
   }, []);
 
   const getVideos = async () => {
-    const data = await fetch(YOUTUBE_VIDEOS_API);
-    const json = await data.json();
-    setVideos(json.items);
+    try {
+      const data = await fetch(YOUTUBE_VIDEOS_API);
+      const json = await data.json();
+      setVideos(json.items);
+    } catch (error) {
+      console.error("Error fetching videos:", error);
+    }
   };
 
+  if (videos.length === 0) return null;
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-2">
-      {videos[0] && <AdVideoCards info={videos[0]} />}
+    <div className="flex flex-wrap justify-center gap-4 p-4 max-w-[1440px] mx-auto">
       {videos.map((video) => (
         <Link
           key={video.id.videoId || video.id}
           to={`/watch?v=${video.id.videoId || video.id}`}
+          className="flex justify-center"
         >
           <VideoCards info={video} />
         </Link>
