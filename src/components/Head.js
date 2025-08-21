@@ -1,102 +1,109 @@
 import React, { useEffect, useState } from 'react'
-import { useDispatch,useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { toggleMenu } from '../utils/appSlice'
 import { YOUTUBE_SEARCH_API } from '../utils/constants';
-import {cacheResults} from "../utils/searchSlice";
-// import { useNavigate } from 'react-router-dom';
-
+import { cacheResults } from "../utils/searchSlice";
 
 const Head = () => {
-const [searchQuery,setSearchQuery]=useState("");
-const [suggestion,setSuggestion]=useState([]);
-const [showSuggestion,setShowSuggestion]=useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [suggestion, setSuggestion] = useState([]);
+  const [showSuggestion, setShowSuggestion] = useState(false);
 
-const searchCache=useSelector((store)=> store.search)
-const dispatch=useDispatch();
-// const navigate=useNavigate();
+  const searchCache = useSelector((store) => store.search)
+  const dispatch = useDispatch();
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchCache[searchQuery]) {
+        setSuggestion(searchCache[searchQuery]);
+      } else {
+        getSearchSuggestions()
+      }
+    }, 200);
 
-useEffect(()=>{
-  const timer=  setTimeout(()=>{
-  if(searchCache[searchQuery]){
-    setSuggestion(searchCache[searchQuery]);
-  }else{
-    getSearchSuggestions()
+    return () => clearTimeout(timer);
+  }, [searchQuery])
+
+  const getSearchSuggestions = async () => {
+    const data = await fetch(YOUTUBE_SEARCH_API + searchQuery);
+    const json = await data.json();
+    setSuggestion(json[1]);
+
+    dispatch(
+      cacheResults({
+        [searchQuery]: json[1],
+      })
+    )
   }
- },200);
 
-return ()=>{
-  clearTimeout(timer);}
-},[searchQuery])
-
-const getSearchSuggestions=async()=>{
-  const data=await fetch(YOUTUBE_SEARCH_API+searchQuery);
-  const json=await data.json();
-  // console.log(json[1])
-  setSuggestion(json[1]);
-
-dispatch(
-  cacheResults({
-     [searchQuery]:json[1],
-})
-)
-}
-  const toggleMenuHandler=()=>{
-dispatch(toggleMenu())
+  const toggleMenuHandler = () => {
+    dispatch(toggleMenu())
   };
 
-// const handleSuggestionClick=(suggestionText)=>{
-//   setSearchQuery(suggestionText);
-//   setShowSuggestion(false);
-//   navigate(`/search?q=${suggestionText}`)
-// }
-
-
   return (
-    <div className='grid grid-flow-col p-4 m-4 shadow-lg '>
-        <div className='flex col-span-1 item-center' >
-          <img 
-          onClick={()=>toggleMenuHandler()}
-          className='h-7 cursor-pointer' alt='hamberer-menu'src='https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Hamburger_icon.svg/800px-Hamburger_icon.svg.png'/>
-        <img className='h-14  pl-7 pb-6 items-center' alt='youtubeloo' src='https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Logo_of_YouTube_%282015-2017%29.svg/753px-Logo_of_YouTube_%282015-2017%29.svg.png'/>
-        </div>
-        <div className='col-span-10'>
-        <div>
-          <input className='w-8/12 border border-gray-400 p-1 pl-4 rounded-l-full' type='text'
-           value={searchQuery}
-           onChange={(e)=>setSearchQuery(e.target.value)}
-           onFocus={()=>setShowSuggestion(true)}
-           onBlur={()=>setShowSuggestion(false)}
+    <div className='flex flex-col sm:flex-row items-center p-4 shadow-lg relative space-y-2 sm:space-y-0 sm:space-x-4'>
+      
+      {/* Left: Hamburger + Logo */}
+      <div className='flex items-center space-x-2'>
+        <img
+          onClick={toggleMenuHandler}
+          className='h-7 cursor-pointer'
+          alt='hamburger-menu'
+          src='https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Hamburger_icon.svg/800px-Hamburger_icon.svg.png'
+        />
+        <img
+          className='h-10 sm:h-14'
+          alt='youtubeloo'
+          src='https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Logo_of_YouTube_%282015-2017%29.svg/753px-Logo_of_YouTube_%282015-2017%29.svg.png'
+        />
+      </div>
 
-           />
-          <button className='border border-gray-400 p-1 rounded-r-full bg-gray-100'>
-          🔍
+      {/* Center: Search Bar */}
+      <div className='flex-1 w-full sm:w-auto relative'>
+        <div className='flex w-full'>
+          <input
+            className='flex-1 border border-gray-400 p-2 pl-4 rounded-l-full focus:outline-none'
+            type='text'
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => setShowSuggestion(true)}
+            onBlur={() => setShowSuggestion(false)}
+          />
+          <button className='border border-gray-400 p-2 rounded-r-full bg-gray-100'>
+            🔍
           </button>
         </div>
-        {showSuggestion &&(
-          <div className="absolute bg-white p-2 w-[37rem]  rounded-md shadow-lg border border-gray-100">
-        <ul>
-        {suggestion.map((s)=>(
-          <li
-           key={s}
-             className="py-2 shadow-sm hover:bg-gray-100 cursor-pointer"
-            //  onMouseDown={()=>handleSuggestionClick(s)}
-             >
-              🔍{s}
-              </li>))}
-           </ul>
-           </div>
-           )}
-        </div>
-        <div className='col-span-1'>
-          <img className='h-10' alt='user' src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRe7qKgRvChw4p7QLmLJ_Vw2PyM11C6ThI6oA&s'/>
-        </div>
 
+        {showSuggestion && suggestion.length > 0 && (
+          <div className="absolute top-full left-0 w-full sm:w-[37rem] bg-white p-2 rounded-md shadow-lg border border-gray-100 z-50">
+            <ul>
+              {suggestion.map((s) => (
+                <li
+                  key={s}
+                  className="py-2 px-2 shadow-sm hover:bg-gray-100 cursor-pointer"
+                >
+                  🔍 {s}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+
+      {/* Right: User Icon */}
+      <div>
+        <img
+          className='h-10 rounded-full'
+          alt='user'
+          src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRe7qKgRvChw4p7QLmLJ_Vw2PyM11C6ThI6oA&s'
+        />
+      </div>
     </div>
   )
 }
 
-export default Head
+export default Head;
+
 
 
 // import React, { useEffect, useState } from 'react';

@@ -73,7 +73,7 @@ function App() {
   return (
     <Provider store={store}>
       <div>
-        <Head /> {/* Head component outside of RouterProvider */}
+       {/* Head component outside of RouterProvider   <Head />*/}
         <RouterProvider router={appRouter} /> {/* RouterProvider wrapping routes */}
       </div>
     </Provider>
