@@ -49,11 +49,11 @@ const VideoContainer = () => {
   };
 
   return (
-    <div className="flex flex-wrap">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-2">
       {videos[0] && <AdVideoCards info={videos[0]} />}
       {videos.map((video) => (
         <Link
-          key={video.id.videoId || video.id} // Support both ID formats
+          key={video.id.videoId || video.id}
           to={`/watch?v=${video.id.videoId || video.id}`}
         >
           <VideoCards info={video} />
@@ -64,3 +64,4 @@ const VideoContainer = () => {
 };
 
 export default VideoContainer;
+
