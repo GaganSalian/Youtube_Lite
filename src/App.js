@@ -48,6 +48,7 @@ import store from "./utils/store";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import MainContainer from "./components/MainContainer";
 import WatchPage from "./components/WatchPage";
+import SearchResults from "./components/SearchResults";
 
 // Define routes
 const appRouter = createBrowserRouter([
@@ -63,7 +64,10 @@ const appRouter = createBrowserRouter([
         path: "watch", // Static path for the watch page
         element: <WatchPage />, // Will read query param inside the component
       },
-    
+      {
+        path:"/results" ,element:<SearchResults />
+      }
+      
     ],
   },
 ]);
