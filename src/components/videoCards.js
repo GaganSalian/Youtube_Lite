@@ -26,7 +26,10 @@ const VideoCards = ({ info }) => {
 
 export const AdVideoCards = ({ info }) => {
   // Just render like normal VideoCard
-  return <VideoCards info={info} />;
+  return (<div className='p1 m-1 border border-black'>
+      <VideoCards info={info} />
+  </div>) 
+
 };
 
 export default VideoCards;
